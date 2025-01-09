@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Check-in List</title>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th,
+        td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+        }
+
+        th {
+            background-color: #f4f4f4;
+        }
+
+        #reset-button {
+            margin: 10px 0;
+            padding: 10px 20px;
+            background-color: #ff4c4c;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        #reset-button:hover {
+            background-color: #ff1c1c;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Check-in List</h1>
+    <button id="reset-button">Reset List</button>
+    <table>
+        <thead>
+            <tr>
+                <th>UID</th>
+                <th>Tên</th>
+                <th>Thời gian</th>
+                <th>Trạng thái</th>
+            </tr>
+        </thead>
+        <tbody id="checkin-table">
+        </tbody>
+    </table>
+
+    <script>
+        // Fetch and display check-ins
+        async function fetchCheckins() {
+            const response = await fetch('http://localhost:3000/api/checkins');
+            const checkins = await response.json();
+            const tableBody = document.getElementById('checkin-table');
+            tableBody.innerHTML = ''; // Clear table
+
+            checkins.forEach(checkin => {
+                const row = document.createElement('tr');
+                row.innerHTML = `<td>${checkin.uid}</td><td>${checkin.name}</td><td>${checkin.timestamp}</td><td>${checkin.status}</td>`;
+                tableBody.appendChild(row);
+            });
+        }
+
+        // Reset check-in list
+        async function resetCheckins() {
+            const response = await fetch('http://localhost:3000/api/reset', { method: 'DELETE' });
+            const result = await response.json();
+            console.log(result.message);
+            fetchCheckins(); // Refresh the table
+        }
+
+        // Set up interval to fetch check-ins
+        setInterval(fetchCheckins, 2000);
+
+        // Attach reset button event
+        document.getElementById('reset-button').addEventListener('click', resetCheckins);
+    </script>
+</body>
+
+</html>
